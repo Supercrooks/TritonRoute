@@ -90,6 +90,15 @@ namespace fr{
     frCost getCost() const {
       return cost;
     }
+    long getbc() const {
+      return BC;
+    }
+    long getoc() const {
+      return OC;
+    }
+    long getwl() const {
+      return WL;
+    }
     int getNumAssigned() const {
       return numAssigned;
     }
@@ -135,6 +144,17 @@ namespace fr{
     void setCost(frCost in) {
       cost = in;
     }
+//*
+    void setbc(long in) {
+      BC = in;
+    }
+    void setoc(long in) {
+      OC = in;
+    }
+    void setwl(long in) {
+      WL = in;
+    }
+
     void addCost(frCost in) {
       cost += in;
     }
@@ -168,6 +188,9 @@ namespace fr{
     frCoord                                 wlen_helper2; // for local guides and pin guides
     frCost                                  cost;
     int                                     numAssigned;
+    long OC;
+    long BC;
+    long WL;
     //frCost                                  drcCost;
   };
   struct taPinComp {

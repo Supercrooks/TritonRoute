@@ -1,0 +1,160 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 233,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 234,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 235,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "include",
+			"paths" : 
+			[
+				"src/gr/FlexGR.h",
+				"src/gr/FlexGRCMap.h",
+				"src/gr/FlexGRGridGraph.h",
+				"src/gr/FlexGRWavefront.h",
+				"src/gr/flute/flute.h",
+				"src/gc/FlexGC.h",
+				"src/dr/FlexWavefront.h",
+				"src/dr/FlexGridGraph.h",
+				"src/dr/FlexMazeTypes.h",
+				"src/dr/FlexDR.h",
+				"src/frBaseTypes.h",
+				"src/ta/FlexTA.h",
+				"src/FlexRoute.h",
+				"src/db/infra/frTime.h",
+				"src/db/infra/frTransform.h",
+				"src/db/infra/frPoint.h",
+				"src/db/infra/frOrient.h",
+				"src/db/infra/frPrefRoutingDir.h",
+				"src/db/infra/frBox.h",
+				"src/db/infra/frSegStyle.h",
+				"src/db/grObj/grAccessPattern.h",
+				"src/db/grObj/grBlockObject.h",
+				"src/db/grObj/grFig.h",
+				"src/db/grObj/grNet.h",
+				"src/db/grObj/grNode.h",
+				"src/db/grObj/grPin.h",
+				"src/db/grObj/grRef.h",
+				"src/db/grObj/grShape.h",
+				"src/db/grObj/grVia.h",
+				"src/db/taObj/taPin.h",
+				"src/db/taObj/taTrack.h",
+				"src/db/taObj/taVia.h",
+				"src/db/taObj/taFig.h",
+				"src/db/taObj/taBlockObject.h",
+				"src/db/taObj/taShape.h",
+				"src/db/gcObj/gcNet.h",
+				"src/db/gcObj/gcFig.h",
+				"src/db/gcObj/gcBlockObject.h",
+				"src/db/gcObj/gcPin.h",
+				"src/db/gcObj/gcShape.h",
+				"src/db/tech/frTechObject.h",
+				"src/db/tech/frConstraint.h",
+				"src/db/tech/frLayer.h",
+				"src/db/tech/frViaRuleGenerate.h",
+				"src/db/tech/frViaDef.h",
+				"src/db/tech/frLookupTbl.h",
+				"src/db/obj/frBlockObject.h",
+				"src/db/obj/frTerm.h",
+				"src/db/obj/frPin.h",
+				"src/db/obj/frInst.h",
+				"src/db/obj/frTrackPattern.h",
+				"src/db/obj/frBoundary.h",
+				"src/db/obj/frBlockage.h",
+				"src/db/obj/frRef.h",
+				"src/db/obj/frCMap.h",
+				"src/db/obj/frAccess.h",
+				"src/db/obj/frInstTerm.h",
+				"src/db/obj/frVia.h",
+				"src/db/obj/frGuide.h",
+				"src/db/obj/frFig.h",
+				"src/db/obj/frBlock.h",
+				"src/db/obj/frMarker.h",
+				"src/db/obj/frNet.h",
+				"src/db/obj/frShape.h",
+				"src/db/obj/frInstBlockage.h",
+				"src/db/obj/frRPin.h",
+				"src/db/obj/frNode.h",
+				"src/db/drObj/drRef.h",
+				"src/db/drObj/drPin.h",
+				"src/db/drObj/drAccessPattern.h",
+				"src/db/drObj/drShape.h",
+				"src/db/drObj/drBlockObject.h",
+				"src/db/drObj/drNet.h",
+				"src/db/drObj/drMarker.h",
+				"src/db/drObj/drFig.h",
+				"src/db/drObj/drVia.h",
+				"src/frDesign.h",
+				"src/frRegionQuery.h",
+				"src/global.h",
+				"src/io/io.h",
+				"src/pa/FlexPA.h",
+				"src/rp/FlexRP.h"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "bin",
+			"paths" : 
+			[
+				"TritonRoute"
+			],
+			"targetId" : "TritonRoute::@6890427a1f51a3e7e1df",
+			"targetIndex" : 2,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"TritonRoute"
+			],
+			"targetId" : "TritonRoute::@6890427a1f51a3e7e1df",
+			"targetIndex" : 2,
+			"type" : "target"
+		}
+	],
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	}
+}

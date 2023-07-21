@@ -607,10 +607,23 @@ void FlexTAWorker::initCosts() {
         cout <<"Error: FlexTAWorker::initCosts does not find trackLoc" <<endl;
         exit(1);
       }
+
+      long oc,bc;
+      long wl;
       //auto tmpCost = assignIroute_getCost(iroute.get(), trackLoc, drcCost);
-      assignIroute_getCost(iroute.get(), trackLoc, drcCost);
+      assignIroute_getCost(iroute.get(), trackLoc, drcCost,oc,bc,wl);
       iroute->setCost(drcCost);
+
+      iroute->setbc(bc) ;
+      iroute->setoc(oc) ;
+      iroute->setwl(wl) ;
+
       totCost += drcCost;
+
+
+      totBC    += iroute->getbc();
+      totOC    += iroute->getoc();
+      totWL    += iroute->getwl();
       //iroute->setDrcCost(drcCost);
       //totDrcCost += drcCost;
       if (enableOutput && !isInitTA()) {

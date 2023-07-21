@@ -1,0 +1,144 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"module/lef/5.8-p029/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 212,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 213,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "include",
+			"paths" : 
+			[
+				"module/lef/5.8-p029/lef/lef.tab.h",
+				"module/lef/5.8-p029/lef/lex.h",
+				"module/lef/5.8-p029/lef/crypt.hpp",
+				"module/lef/5.8-p029/lef/lefiArray.hpp",
+				"module/lef/5.8-p029/lef/lefiCrossTalk.hpp",
+				"module/lef/5.8-p029/lef/lefiDebug.hpp",
+				"module/lef/5.8-p029/lef/lefiDefs.hpp",
+				"module/lef/5.8-p029/lef/lefiEncryptInt.hpp",
+				"module/lef/5.8-p029/lef/lefiKRDefs.hpp",
+				"module/lef/5.8-p029/lef/lefiLayer.hpp",
+				"module/lef/5.8-p029/lef/lefiMacro.hpp",
+				"module/lef/5.8-p029/lef/lefiMisc.hpp",
+				"module/lef/5.8-p029/lef/lefiNonDefault.hpp",
+				"module/lef/5.8-p029/lef/lefiProp.hpp",
+				"module/lef/5.8-p029/lef/lefiPropType.hpp",
+				"module/lef/5.8-p029/lef/lefiUnits.hpp",
+				"module/lef/5.8-p029/lef/lefiUser.hpp",
+				"module/lef/5.8-p029/lef/lefiUtil.hpp",
+				"module/lef/5.8-p029/lef/lefiVia.hpp",
+				"module/lef/5.8-p029/lef/lefiViaRule.hpp",
+				"module/lef/5.8-p029/lef/lefrCallBacks.hpp",
+				"module/lef/5.8-p029/lef/lefrData.hpp",
+				"module/lef/5.8-p029/lef/lefrReader.hpp",
+				"module/lef/5.8-p029/lef/lefrSettings.hpp",
+				"module/lef/5.8-p029/lef/lefwWriterCalls.hpp",
+				"module/lef/5.8-p029/lef/lefwWriter.hpp",
+				"module/lef/5.8-p029/lefzlib/lefzlib.hpp",
+				"module/lef/5.8-p029/clef/lefiArray.h",
+				"module/lef/5.8-p029/clef/lefiCrossTalk.h",
+				"module/lef/5.8-p029/clef/lefiDebug.h",
+				"module/lef/5.8-p029/clef/lefiEncryptInt.h",
+				"module/lef/5.8-p029/clef/lefiLayer.h",
+				"module/lef/5.8-p029/clef/lefiMacro.h",
+				"module/lef/5.8-p029/clef/lefiMisc.h",
+				"module/lef/5.8-p029/clef/lefiNonDefault.h",
+				"module/lef/5.8-p029/clef/lefiProp.h",
+				"module/lef/5.8-p029/clef/lefiPropType.h",
+				"module/lef/5.8-p029/clef/lefiTypedefs.h",
+				"module/lef/5.8-p029/clef/lefiUnits.h",
+				"module/lef/5.8-p029/clef/lefiUser.h",
+				"module/lef/5.8-p029/clef/lefiUtil.h",
+				"module/lef/5.8-p029/clef/lefiVia.h",
+				"module/lef/5.8-p029/clef/lefiViaRule.h",
+				"module/lef/5.8-p029/clef/lefMsgTable.h",
+				"module/lef/5.8-p029/clef/lefrReader.h",
+				"module/lef/5.8-p029/clef/lefwWriterCalls.h",
+				"module/lef/5.8-p029/clef/lefwWriter.h",
+				"module/lef/5.8-p029/clefzlib/lefzlib.h"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"/home/gzj/TritonRoute/module/lef/5.8-p029/lib/liblef.a"
+			],
+			"targetId" : "lef::@03c5a0d7f8e7f8e7003d",
+			"targetIndex" : 10,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"/home/gzj/TritonRoute/module/lef/5.8-p029/lib/liblefzlib.a"
+			],
+			"targetId" : "lefzlib::@03c5a0d7f8e7f8e7003d",
+			"targetIndex" : 11,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"/home/gzj/TritonRoute/module/lef/5.8-p029/lib/libclef.a"
+			],
+			"targetId" : "clef::@03c5a0d7f8e7f8e7003d",
+			"targetIndex" : 5,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"/home/gzj/TritonRoute/module/lef/5.8-p029/lib/libclefzlib.a"
+			],
+			"targetId" : "clefzlib::@03c5a0d7f8e7f8e7003d",
+			"targetIndex" : 6,
+			"type" : "target"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "module/lef/5.8-p029",
+		"source" : "module/lef/5.8-p029"
+	}
+}

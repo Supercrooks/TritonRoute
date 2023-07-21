@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../../../module/def/5.8-p029/lib/libcdefzlib.a 
+/usr/bin/ranlib ../../../../module/def/5.8-p029/lib/libcdefzlib.a

@@ -107,7 +107,7 @@ namespace fr {
     void main_helper(frLayerNum lNum, int maxOffsetIter, int panelWidth);
     void initTA(int size);
     void searchRepair(int iter, int size, int offset);
-    int  initTA_helper(int iter, int size, int offset, bool isH, int &numPanels);
+    int  initTA_helper(int iter, int size, int offset, bool isH, int &numPanels,long &TOTBC,long &TOTOC,long &TOTWL);
   };
 
 
@@ -258,7 +258,7 @@ namespace fr {
     }
     // others
     int main();
-    int main_mt();
+    int main_mt(long &BC,long &OC,long &WL);
     
   protected:
     frTechObject*                      tech; // not set
@@ -270,6 +270,8 @@ namespace fr {
     FlexTAWorkerRegionQuery            rq;
 
     //std::vector<frGuide*>            guides;
+
+
     std::vector<std::unique_ptr<taPin> > iroutes; // unsorterd iroutes
     std::vector<std::unique_ptr<taPin> > extIroutes;
     std::vector<std::vector<frCoord> >   trackLocs;
@@ -280,6 +282,12 @@ namespace fr {
     int                                numAssigned;
     int                                totCost;
     int                                maxRetry;
+
+    
+    long                                totOC=0;
+    long                                totBC=0;
+    long                                totWL=0;
+
     //frUInt4                            totDrcCost;
     
     //// others
@@ -319,13 +327,13 @@ namespace fr {
     void assignIroute_availTracks(taPin* iroute, frLayerNum &lNum, int &idx1, int &idx2);
     int  assignIroute_bestTrack(taPin* iroute, frLayerNum lNum, int idx1, int idx2);
     void assignIroute_bestTrack_helper(taPin* iroute, frLayerNum lNum, int trackIdx, frUInt4 &bestCost, 
-                                       frCoord &bestTrackLoc, int &bestTrackIdx, frUInt4 &drcCost);
-    frUInt4 assignIroute_getCost(taPin *iroute, frCoord trackLoc, frUInt4 &drcCost);
+                                       frCoord &bestTrackLoc, int &bestTrackIdx, frUInt4 &drcCost,long &OC, long &BC, long &WL);
+    frUInt4 assignIroute_getCost(taPin *iroute, frCoord trackLoc, frUInt4 &drcCost,long &OC, long &BC, long &WL);
     frUInt4 assignIroute_getWlenCost(taPin *iroute, frCoord trackLoc);
     frUInt4 assignIroute_getPinCost(taPin* iroute, frCoord trackLoc);
     frUInt4 assignIroute_getAlignCost(taPin* iroute, frCoord trackLoc);
-    frUInt4 assignIroute_getDRCCost(taPin *iroute, frCoord trackLoc);
-    frUInt4 assignIroute_getDRCCost_helper(taPin* iroute, const frBox &box, frLayerNum lNum);
+    frUInt4 assignIroute_getDRCCost(taPin *iroute, frCoord trackLoc, long &OC, long &BC);
+    frUInt4 assignIroute_getDRCCost_helper(taPin* iroute, const frBox &box, frLayerNum lNum,long &OC, long &BC);
     void assignIroute_updateIroute(taPin* iroute, frCoord bestTrackLoc, std::set<taPin*, frBlockObjectComp> *pinS);
     void assignIroute_updateOthers(std::set<taPin*, frBlockObjectComp> &pinS);
 

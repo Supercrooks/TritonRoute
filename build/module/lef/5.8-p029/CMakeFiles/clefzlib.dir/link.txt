@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../../../module/lef/5.8-p029/lib/libclefzlib.a 
+/usr/bin/ranlib ../../../../module/lef/5.8-p029/lib/libclefzlib.a

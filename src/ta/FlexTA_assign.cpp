@@ -682,16 +682,19 @@ frUInt4 FlexTAWorker::assignIroute_getPinCost(taPin* iroute, frCoord trackLoc) {
   return sol;
 }
 
-frUInt4 FlexTAWorker::assignIroute_getDRCCost_helper(taPin* iroute, const frBox &box, frLayerNum lNum) {
+frUInt4 FlexTAWorker::assignIroute_getDRCCost_helper(taPin* iroute, const frBox &box, frLayerNum lNum, long &OC, long &BC) {
   auto &workerRegionQuery = getWorkerRegionQuery();
   vector<rq_generic_value_t<std::pair<frBlockObject*, frConstraint*> > > result;
   int overlap = 0;
   workerRegionQuery.queryCost(box, lNum, result);
   bool isCut = false;
+  frCoord OGTMPOVLP=0;
   for (auto &[boostb, pr]: result) {
     auto &[obj, con] = pr;
     frCoord tmpOvlp = - max(box.left(),   boostb.min_corner().x()) + min(box.right(),  boostb.max_corner().x()) 
                       - max(box.bottom(), boostb.min_corner().y()) + min(box.top(),    boostb.max_corner().y()) + 1;
+    OGTMPOVLP=tmpOvlp;
+    
     if (tmpOvlp <= 0) {
       cout <<"Error: assignIroute_getDRCCost_helper overlap < 0" <<endl;
       exit(1);
@@ -699,10 +702,21 @@ frUInt4 FlexTAWorker::assignIroute_getDRCCost_helper(taPin* iroute, const frBox 
     // unknown obj, always add cost
     if (obj == nullptr) {
       overlap += tmpOvlp;
+      //*
+      BC += OGTMPOVLP;
     // only add cost for diff-net
     } else if (obj->typeId() == frcNet) {
       if (iroute->getGuide()->getNet() != obj) {
-        overlap += tmpOvlp;
+        //overlap += tmpOvlp;
+        //*
+        if(isInitTA()){
+            overlap += 0.1*tmpOvlp;
+        }
+        else{
+            overlap += 0.5*tmpOvlp;
+        }
+        //*
+        OC += OGTMPOVLP;
       }
     // two taObjs
     } else if (obj->typeId() == tacPathSeg || obj->typeId() == tacVia) {
@@ -712,7 +726,15 @@ frUInt4 FlexTAWorker::assignIroute_getDRCCost_helper(taPin* iroute, const frBox 
         continue;
       }
       if (iroute->getGuide()->getNet() != taObj->getPin()->getGuide()->getNet()) {
-        overlap += tmpOvlp;
+        //overlap += tmpOvlp;
+        //*
+        if(isInitTA()){
+            overlap += 0.1*tmpOvlp;
+        }
+        else{
+            overlap += 0.5*tmpOvlp;
+        }
+        OC += OGTMPOVLP;
       }
     } else {
       cout <<"Warning: assignIroute_getDRCCost_helper unsupported type" <<endl;
@@ -736,7 +758,7 @@ frUInt4 FlexTAWorker::assignIroute_getDRCCost_helper(taPin* iroute, const frBox 
   return (overlap == 0) ? 0 : (isCut ? pitch * 2: max(pitch * 2, overlap));
 }
 
-frUInt4 FlexTAWorker::assignIroute_getDRCCost(taPin* iroute, frCoord trackLoc) {
+frUInt4 FlexTAWorker::assignIroute_getDRCCost(taPin* iroute, frCoord trackLoc, long &OC, long &BC) {
   frUInt4 cost = 0;
   frPoint bp, ep;
   bool isH = (getDir() == frPrefRoutingDirEnum::frcHorzPrefRoutingDir);
@@ -751,7 +773,7 @@ frUInt4 FlexTAWorker::assignIroute_getDRCCost(taPin* iroute, frCoord trackLoc) {
         bp.set(trackLoc, bp.y());
         ep.set(trackLoc, ep.y());
       }
-      frUInt4 wireCost = assignIroute_getDRCCost_helper(iroute, frBox(bp, ep), obj->getLayerNum());
+      frUInt4 wireCost = assignIroute_getDRCCost_helper(iroute, frBox(bp, ep), obj->getLayerNum(),OC,BC);
       //if (!isInitTA()) {
       //  cout <<"wireCost@" <<wireCost <<endl;
       //}
@@ -765,7 +787,7 @@ frUInt4 FlexTAWorker::assignIroute_getDRCCost(taPin* iroute, frCoord trackLoc) {
         bp.set(trackLoc, bp.y());
       }
       //cost += TAVIACOST * assignIroute_getDRCCost_helper(iroute, frBox(bp, bp), obj->getViaDef()->getCutLayerNum());
-      frUInt4 viaCost = assignIroute_getDRCCost_helper(iroute, frBox(bp, bp), obj->getViaDef()->getCutLayerNum());
+      frUInt4 viaCost = assignIroute_getDRCCost_helper(iroute, frBox(bp, bp), obj->getViaDef()->getCutLayerNum(),OC,BC);
       //if (!isInitTA()) {
       //  cout <<"viaCost@" <<viaCost <<endl;
       //}
@@ -812,11 +834,13 @@ frUInt4 FlexTAWorker::assignIroute_getAlignCost(taPin* iroute, frCoord trackLoc)
   return pitch * sol;
 }
 
-frUInt4 FlexTAWorker::assignIroute_getCost(taPin* iroute, frCoord trackLoc, frUInt4 &outDrcCost) {
+frUInt4 FlexTAWorker::assignIroute_getCost(taPin* iroute, frCoord trackLoc, frUInt4 &outDrcCost, long &OC, long &BC, long &WL) {
   frCoord irouteLayerPitch = getTech()->getLayer(iroute->getGuide()->getBeginLayerNum())->getPitch();
   //bool enableOutput = true;
   bool enableOutput = false;
-  outDrcCost     = assignIroute_getDRCCost(iroute, trackLoc);
+  long oc=0;
+  long bc=0;
+  outDrcCost     = assignIroute_getDRCCost(iroute, trackLoc,oc,bc);
   int drcCost    = (isInitTA()) ? (0.05 * outDrcCost) : (TADRCCOST * outDrcCost);
   int wlenCost   = assignIroute_getWlenCost(iroute, trackLoc);
   // int pinCost    = TAPINCOST * assignIroute_getPinCost(iroute, trackLoc);
@@ -824,29 +848,57 @@ frUInt4 FlexTAWorker::assignIroute_getCost(taPin* iroute, frCoord trackLoc, frUI
   int pinCost    = (tmpPinCost == 0) ? 0 : TAPINCOST * irouteLayerPitch + tmpPinCost;
   int tmpAlignCost = assignIroute_getAlignCost(iroute, trackLoc);
   int alignCost  = (tmpAlignCost == 0) ? 0 : TAALIGNCOST * irouteLayerPitch + tmpAlignCost;
+  
   // int misalignCost = assignIroute_getMisalignCost(iroute, trackLoc);
+  
+  //*
+  BC = bc;
+  WL = wlenCost;
+  OC = oc;
   if (enableOutput) {
     cout <<"    drc/wlen/pin/align cost = " <<drcCost <<"/" <<wlenCost <<"/" <<pinCost <<"/" <<alignCost <<endl;
   }
-  return max(drcCost + wlenCost + pinCost - alignCost, 0);
+  
+  //return max(drcCost + wlenCost + pinCost - alignCost, 0);
+
+  //*
+  if(isInitTA())
+  {
+  
+    return max(drcCost + wlenCost+ pinCost - alignCost, 0);
+  }
+  else
+  {
+    
+    return max(drcCost + int(0.1*wlenCost)+ pinCost - alignCost, 0);
+  }
 }
 
 void FlexTAWorker::assignIroute_bestTrack_helper(taPin* iroute, frLayerNum lNum, int trackIdx, frUInt4 &bestCost, 
-                                                 frCoord &bestTrackLoc, int &bestTrackIdx, frUInt4 &drcCost) {
+                                                 frCoord &bestTrackLoc, int &bestTrackIdx, frUInt4 &drcCost, long &bestOC,
+                                                 long &bestBC,long &bestWL) {
   //bool enableOutput = true;
   bool enableOutput = false;
   double dbu = getDesign()->getTopBlock()->getDBUPerUU();
   auto trackLoc = getTrackLocs(lNum)[trackIdx];
-  auto currCost = assignIroute_getCost(iroute, trackLoc, drcCost);
+  long OC,BC;
+  long WL;
+  auto currCost = assignIroute_getCost(iroute, trackLoc, drcCost,OC,BC,WL);
   if (isInitTA()) {
     if (currCost < bestCost) {
       bestCost = currCost;
+      bestOC = OC;
+      bestBC = BC;
+      bestWL = WL;
       bestTrackLoc = trackLoc;
       bestTrackIdx = trackIdx;
     }
   } else {
     if (drcCost < bestCost) {
       bestCost = drcCost;
+      bestOC = OC;
+      bestBC = BC;
+      bestWL = WL;
       bestTrackLoc = trackLoc;
       bestTrackIdx = trackIdx;
     }
@@ -865,8 +917,15 @@ int FlexTAWorker::assignIroute_bestTrack(taPin* iroute, frLayerNum lNum, int idx
   frUInt4 bestCost = std::numeric_limits<frUInt4>::max();
   frUInt4 drcCost = 0;
   //while (1) {
+
   // if wlen2, then try from  wlen2
   // else try from wlen1 dir
+
+  //*
+  long bestOC=0;
+  long bestBC=0;
+  long bestWL=0;
+
   if (iroute->hasWlenHelper2()) {
     //cout <<"if" <<endl;
     frCoord wlen2coord = iroute->getWlenHelper2();
@@ -878,14 +937,14 @@ int FlexTAWorker::assignIroute_bestTrack(taPin* iroute, frLayerNum lNum, int idx
       startTrackIdx = min(startTrackIdx, idx2);
       startTrackIdx = max(startTrackIdx, idx1);
       for (int i = startTrackIdx; i <= idx2; i++) {
-        assignIroute_bestTrack_helper(iroute, lNum, i, bestCost, bestTrackLoc, bestTrackIdx, drcCost);
+        assignIroute_bestTrack_helper(iroute, lNum, i, bestCost, bestTrackLoc, bestTrackIdx, drcCost,bestOC,bestBC,bestWL);
         if (!drcCost) {
           break;
         }
       }
       if (drcCost) {
         for (int i = startTrackIdx - 1; i >= idx1; i--) {
-          assignIroute_bestTrack_helper(iroute, lNum, i, bestCost, bestTrackLoc, bestTrackIdx, drcCost);
+          assignIroute_bestTrack_helper(iroute, lNum, i, bestCost, bestTrackLoc, bestTrackIdx, drcCost,bestOC,bestBC,bestWL);
           if (!drcCost) {
             break;
           }
@@ -902,14 +961,14 @@ int FlexTAWorker::assignIroute_bestTrack(taPin* iroute, frLayerNum lNum, int idx
       for (int i = 0; i <= idx2 - idx1; i++) {
         int currTrackIdx = startTrackIdx + i;
         if (currTrackIdx >= idx1 && currTrackIdx <= idx2) {
-          assignIroute_bestTrack_helper(iroute, lNum, currTrackIdx, bestCost, bestTrackLoc, bestTrackIdx, drcCost);
+          assignIroute_bestTrack_helper(iroute, lNum, currTrackIdx, bestCost, bestTrackLoc, bestTrackIdx, drcCost,bestOC,bestBC,bestWL);
         }
         if (!drcCost) {
           break;
         }
         currTrackIdx = startTrackIdx - i - 1;
         if (currTrackIdx >= idx1 && currTrackIdx <= idx2) {
-          assignIroute_bestTrack_helper(iroute, lNum, currTrackIdx, bestCost, bestTrackLoc, bestTrackIdx, drcCost);
+          assignIroute_bestTrack_helper(iroute, lNum, currTrackIdx, bestCost, bestTrackLoc, bestTrackIdx, drcCost,bestOC,bestBC,bestWL);
         }
         if (!drcCost) {
           break;
@@ -923,14 +982,14 @@ int FlexTAWorker::assignIroute_bestTrack(taPin* iroute, frLayerNum lNum, int idx
       startTrackIdx = min(startTrackIdx, idx2);
       startTrackIdx = max(startTrackIdx, idx1);
       for (int i = startTrackIdx; i >= idx1; i--) {
-        assignIroute_bestTrack_helper(iroute, lNum, i, bestCost, bestTrackLoc, bestTrackIdx, drcCost);
+        assignIroute_bestTrack_helper(iroute, lNum, i, bestCost, bestTrackLoc, bestTrackIdx, drcCost,bestOC,bestBC,bestWL);
         if (!drcCost) {
           break;
         }
       }
       if (drcCost) {
         for (int i = startTrackIdx + 1; i <= idx2; i++) {
-          assignIroute_bestTrack_helper(iroute, lNum, i, bestCost, bestTrackLoc, bestTrackIdx, drcCost);
+          assignIroute_bestTrack_helper(iroute, lNum, i, bestCost, bestTrackLoc, bestTrackIdx, drcCost,bestOC,bestBC,bestWL);
           if (!drcCost) {
             break;
           }
@@ -944,7 +1003,7 @@ int FlexTAWorker::assignIroute_bestTrack(taPin* iroute, frLayerNum lNum, int idx
         cout <<" use wlen@" <<iroute->getWlenHelper() <<endl;
       }
       for (int i = idx2; i >= idx1; i--) {
-        assignIroute_bestTrack_helper(iroute, lNum, i, bestCost, bestTrackLoc, bestTrackIdx, drcCost);
+        assignIroute_bestTrack_helper(iroute, lNum, i, bestCost, bestTrackLoc, bestTrackIdx, drcCost,bestOC,bestBC,bestWL);
         if (!drcCost) {
           break;
         }
@@ -954,14 +1013,14 @@ int FlexTAWorker::assignIroute_bestTrack(taPin* iroute, frLayerNum lNum, int idx
         cout <<" use wlen@" <<iroute->getWlenHelper() <<endl;
       }
       for (int i = (idx1 + idx2) / 2; i <= idx2; i++) {
-        assignIroute_bestTrack_helper(iroute, lNum, i, bestCost, bestTrackLoc, bestTrackIdx, drcCost);
+        assignIroute_bestTrack_helper(iroute, lNum, i, bestCost, bestTrackLoc, bestTrackIdx, drcCost,bestOC,bestBC,bestWL);
         if (!drcCost) {
           break;
         }
       }
       if (drcCost) {
         for (int i = (idx1 + idx2) / 2 - 1; i >= idx1; i--) {
-          assignIroute_bestTrack_helper(iroute, lNum, i, bestCost, bestTrackLoc, bestTrackIdx, drcCost);
+          assignIroute_bestTrack_helper(iroute, lNum, i, bestCost, bestTrackLoc, bestTrackIdx, drcCost,bestOC,bestBC,bestWL);
           if (!drcCost) {
             break;
           }
@@ -972,7 +1031,7 @@ int FlexTAWorker::assignIroute_bestTrack(taPin* iroute, frLayerNum lNum, int idx
         cout <<" use wlen@" <<iroute->getWlenHelper() <<endl;
       }
       for (int i = idx1; i <= idx2; i++) {
-        assignIroute_bestTrack_helper(iroute, lNum, i, bestCost, bestTrackLoc, bestTrackIdx, drcCost);
+        assignIroute_bestTrack_helper(iroute, lNum, i, bestCost, bestTrackLoc, bestTrackIdx, drcCost,bestOC,bestBC,bestWL);
         if (!drcCost) {
           break;
         }
@@ -999,7 +1058,18 @@ int FlexTAWorker::assignIroute_bestTrack(taPin* iroute, frLayerNum lNum, int idx
   //totCost    -= iroute->getCost();
   //totDrcCost -= iroute->getDrcCost();
   totCost    += drcCost;
+//*
+  iroute->setbc(bestBC);
+  iroute->setoc(bestOC);
+  iroute->setwl(bestWL);
+
+  totBC    += iroute->getbc();
+  totOC    += iroute->getoc();
+  totWL    += iroute->getwl();
+
   iroute->setCost(drcCost);
+
+  // cout<<totBC<<" "<<totOC<<endl;
   //totDrcCost += drcCost;
   return bestTrackLoc;
 }
@@ -1053,6 +1123,11 @@ void FlexTAWorker::assignIroute_init(taPin* iroute, set<taPin*, frBlockObjectCom
       subCost(uPinFig.get(), pinS);
     }
     totCost    -= iroute->getCost();
+
+    //*
+    totBC    -= iroute->getbc();
+    totOC    -= iroute->getoc();
+    totWL    -= iroute->getwl();
     //totDrcCost -= iroute->getDrcCost();
   }
 }
@@ -1086,15 +1161,31 @@ void FlexTAWorker::assignIroute_updateOthers(set<taPin*, frBlockObjectComp> &pin
       exit(1);
     }
     totCost    -= iroute->getCost();
+    /**/
+    totBC    -= iroute->getbc();
+    totOC    -= iroute->getoc();
+    totWL    -= iroute->getwl();
     //totDrcCost -= iroute->getDrcCost();
     //auto tmpCost = assignIroute_getCost(iroute, trackLoc, drcCost);
-    assignIroute_getCost(iroute, trackLoc, drcCost);
+    
+    //*
+    long oc,bc;
+    long wl;
+    assignIroute_getCost(iroute, trackLoc, drcCost,oc,bc,wl);
     iroute->setCost(drcCost);
+
+    //*
+    iroute->setbc(oc);
+    iroute->setoc(bc);
+    iroute->setwl(wl);
     //iroute->setCost(tmpCost);
     //iroute->setDrcCost(drcCost);
     //totCost    += iroute->getCost();
     //totDrcCost += iroute->getDrcCost();
     totCost    += iroute->getCost();
+
+    //*
+    
     if (drcCost && iroute->getNumAssigned() < maxRetry) {
       addToReassignIroutes(iroute);
     }

@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -rdynamic CMakeFiles/TritonRoute.dir/src/main.cpp.o -o TritonRoute  libflexroute.a ../module/def/5.8-p029/lib/libdef.a ../module/lef/5.8-p029/lib/liblef.a -lgomp -Wl,-Bstatic -lpthread -Wl,-Bdynamic /usr/lib/x86_64-linux-gnu/libz.so 

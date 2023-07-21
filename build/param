@@ -1,0 +1,10 @@
+lef:/nas/gzj/case/ispd19_test1/ispd19_test1.input.lef
+def:/nas/gzj/case/ispd19_test1/ispd19_test1.input.def
+guide:/nas/gzj/case/ispd19_test1/ispd19_test1.input.guide
+output:/nas/gzj/case/ispd19_test1/out.def
+# outputguide:/nas/gzj/case/ispd19_test1/out.guide
+outputTA:/nas/gzj/case/ispd19_test1/out.ta
+outputDRC:/nas/gzj/case/ispd19_test1/out.drc
+threads:28
+#NEW_TA_COST:{1}
+#NEW_TA_COST_MULTITRACK:{1}

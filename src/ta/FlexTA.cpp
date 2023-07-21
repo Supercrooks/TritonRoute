@@ -38,6 +38,7 @@
 using namespace std;
 using namespace fr;
 using namespace boost::polygon::operators;
+using namespace std::chrono;
 
 int FlexTAWorker::main() {
   using namespace std::chrono;
@@ -86,7 +87,7 @@ int FlexTAWorker::main() {
   return 0;
 }
 
-int FlexTAWorker::main_mt() {
+int FlexTAWorker::main_mt(long &BC,long &OC,long &WL) {
   using namespace std::chrono;
   high_resolution_clock::time_point t0 = high_resolution_clock::now();
   if (VERBOSE > 1) {
@@ -130,10 +131,14 @@ int FlexTAWorker::main_mt() {
                                       <<endl;
     cout <<ss.str() <<flush;
   }
+   BC=totBC;
+  OC=totOC;
+  WL=totWL;
   return 0;
+ 
 }
 
-int FlexTA::initTA_helper(int iter, int size, int offset, bool isH, int &numPanels) {
+int FlexTA::initTA_helper(int iter, int size, int offset, bool isH, int &numPanels,long &TOTBC,long &TOTOC,long &TOTWL) {
   //frBox dieBox;
   //getDesign()->getTopBlock()->getBoundaryBBox(dieBox);
 
@@ -239,18 +244,25 @@ int FlexTA::initTA_helper(int iter, int size, int offset, bool isH, int &numPane
     } 
 
 
-    omp_set_num_threads(min(8, MAX_THREADS));
+    omp_set_num_threads(min(16, MAX_THREADS));
     // parallel execution
     // multi thread
     for (auto &workerBatch: workers) {
       #pragma omp parallel for schedule(dynamic)
       for (int i = 0; i < (int)workerBatch.size(); i++) {
-        workerBatch[i]->main_mt();
+        long BC=0;
+        long OC=0;
+        long WL=0;
+        workerBatch[i]->main_mt(BC,OC,WL);
         #pragma omp critical 
         {
           sol += workerBatch[i]->getNumAssigned();
           numPanels++;
         }
+        TOTBC+=BC;
+        TOTOC+=OC;
+        TOTWL+=WL;
+
       }
       for (int i = 0; i < (int)workerBatch.size(); i++) {
         workerBatch[i]->end();
@@ -263,8 +275,14 @@ int FlexTA::initTA_helper(int iter, int size, int offset, bool isH, int &numPane
 
 void FlexTA::initTA(int size) {
   frTime t;
+  long TOTBC=0;
+  long TOTOC=0;
+  long TOTWL=0;
 
-  if (VERBOSE > 1) {
+  long TOTBC_1=0;
+  long TOTOC_1=0;
+  long TOTWL_1=0;
+  if (VERBOSE > 0) {
     cout <<endl <<"start initial track assignment ..." <<endl;
   }
 
@@ -281,31 +299,63 @@ void FlexTA::initTA(int size) {
 
   // H first
   if (isBottomLayerH) {
-    numAssigned = initTA_helper(0, size, 0, true, numPanels);
+    numAssigned = initTA_helper(0, size, 0, true, numPanels,TOTBC,TOTOC,TOTWL);
     if (VERBOSE > 0) {
       cout <<"Done with " <<numAssigned <<" horizontal wires in " <<numPanels <<" frboxes and ";
     }
-    numAssigned = initTA_helper(0, size, 0, false, numPanels);
+    TOTBC_1+=TOTBC;
+    TOTOC_1+=TOTOC;
+    TOTWL_1+=TOTWL;
+    TOTBC=0;
+    TOTOC=0;
+    TOTWL=0;
+    numAssigned = initTA_helper(0, size, 0, false, numPanels,TOTBC,TOTOC,TOTWL);
     if (VERBOSE > 0) {
       cout <<numAssigned <<" vertical wires in " <<numPanels <<" frboxes." <<endl;
     }
+    TOTBC_1+=TOTBC;
+    TOTOC_1+=TOTOC;
+    TOTWL_1+=TOTWL;
+    cout<<endl;
+    cout<<"tot BC / OC /WL :"<<TOTBC_1<<" "<<TOTOC_1<<" "<<TOTWL_1<<endl;
+    cout<<endl;
   // V first
   } else {
-    numAssigned = initTA_helper(0, size, 0, false, numPanels);
+    numAssigned = initTA_helper(0, size, 0, false, numPanels,TOTBC,TOTOC,TOTWL);
     if (VERBOSE > 0) {
       cout <<"Done with " <<numAssigned <<" vertical wires in " <<numPanels <<" frboxes and ";
     }
-    numAssigned = initTA_helper(0, size, 0, true, numPanels);
+    TOTBC_1+=TOTBC;
+    TOTOC_1+=TOTOC;
+    TOTWL_1+=TOTWL;
+    TOTBC=0;
+    TOTOC=0;
+    TOTWL=0;
+    numAssigned = initTA_helper(0, size, 0, true, numPanels,TOTBC,TOTOC,TOTWL);
     if (VERBOSE > 0) {
       cout <<numAssigned <<" horizontal wires in " <<numPanels <<" frboxes." <<endl;
     }
+    TOTBC_1+=TOTBC;
+    TOTOC_1+=TOTOC;
+    TOTWL_1+=TOTWL;
+    cout<<endl;
+    cout<<"tot BC / OC /WL :"<<TOTBC_1<<" "<<TOTOC_1<<" "<<TOTWL_1<<endl;
+    cout<<endl;
   }
 }
 
 void FlexTA::searchRepair(int iter, int size, int offset) {
   frTime t;
 
-  if (VERBOSE > 1) {
+
+  long TOTBC=0;
+  long TOTOC=0;
+  long TOTWL=0;
+  long TOTBC_1=0;
+  long TOTOC_1=0;
+  long TOTWL_1=0;
+
+  if (VERBOSE > 0) {
     if (iter == -1) {
       cout <<endl <<"start polishing ..." <<endl;
     } else {
@@ -336,24 +386,48 @@ void FlexTA::searchRepair(int iter, int size, int offset) {
   int numPanels = 0;
   // H first
   if (isBottomLayerH) {
-    numAssigned = initTA_helper(iter, size, offset, true, numPanels);
+    numAssigned = initTA_helper(iter, size, offset, true, numPanels,TOTBC,TOTOC,TOTWL);
     if (VERBOSE > 0) {
       cout <<"Done with " <<numAssigned <<" horizontal wires in " <<numPanels <<" frboxes and ";
     }
-    numAssigned = initTA_helper(iter, size, offset, false, numPanels);
+    TOTBC_1+=TOTBC;
+    TOTOC_1+=TOTOC;
+    TOTWL_1+=TOTWL;
+    TOTBC=0;
+    TOTOC=0;
+    TOTWL=0;
+    numAssigned = initTA_helper(iter, size, offset, false, numPanels,TOTBC,TOTOC,TOTWL);
     if (VERBOSE > 0) {
       cout <<numAssigned <<" vertical wires in " <<numPanels <<" frboxes." <<endl;
     }
+    TOTBC_1+=TOTBC;
+    TOTOC_1+=TOTOC;
+    TOTWL_1+=TOTWL;
+    cout<<endl;
+    cout<<"tot BC / OC /WL :"<<TOTBC_1<<" "<<TOTOC_1<<" "<<TOTWL_1<<endl;
+    cout<<endl;
   // V first
   } else {
-    numAssigned = initTA_helper(iter, size, offset, false, numPanels);
+    numAssigned = initTA_helper(iter, size, offset, false, numPanels,TOTBC,TOTOC,TOTWL);
     if (VERBOSE > 0) {
       cout <<"Done with " <<numAssigned <<" vertical wires in " <<numPanels <<" frboxes and ";
     }
-    numAssigned = initTA_helper(iter, size, offset, true, numPanels);
+    TOTBC_1+=TOTBC;
+    TOTOC_1+=TOTOC;
+    TOTWL_1+=TOTWL;
+    TOTBC=0;
+    TOTOC=0;
+    TOTWL=0;
+    numAssigned = initTA_helper(iter, size, offset, true, numPanels,TOTBC,TOTOC,TOTWL);
     if (VERBOSE > 0) {
       cout <<numAssigned <<" horizontal wires in " <<numPanels <<" frboxes." <<endl;
     }
+    TOTBC_1+=TOTBC;
+    TOTOC_1+=TOTOC;
+    TOTWL_1+=TOTWL;
+    cout<<endl;
+    cout<<"tot BC / OC /WL :"<<TOTBC_1<<" "<<TOTOC_1<<" "<<TOTWL_1<<endl;
+    cout<<endl;
   }
 }
 
@@ -362,11 +436,29 @@ int FlexTA::main() {
   if (VERBOSE > 0) {
     cout <<endl <<endl <<"start track assignment" <<endl;
   }
-  initTA(50);
-  searchRepair(1, 50, 0);
+  high_resolution_clock::time_point t0 = high_resolution_clock::now();
+
+  initTA(1);
+
+  high_resolution_clock::time_point t1 = high_resolution_clock::now();
+
+  searchRepair(1, 1, 0);
+
+  high_resolution_clock::time_point t2 = high_resolution_clock::now();
+
   //searchRepair(2, 50, 0);
   //searchRepair(2, 50, 0);
   //searchRepair(-1, 50, 0);
+
+  duration<double> time_span0 = duration_cast<duration<double>>(t1 - t0);
+  duration<double> time_span1 = duration_cast<duration<double>>(t2 - t1);
+  
+  if (VERBOSE > 0) {
+    stringstream ss;
+    ss   <<"time initTA " <<time_span0.count()<<endl;
+    cout <<ss.str() <<flush;
+    cout <<"searchRepair1 "<<time_span1.count() <<endl;
+  }
 
   if (VERBOSE > 0) {
     cout <<endl <<"complete track assignment";

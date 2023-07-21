@@ -121,13 +121,13 @@ int main(int argc, char** argv) {
   //     <<"(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\n"
   //     <<"SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"
   //     <<"\n";
-  if (argc == 1) {
-    cout <<"Error: usage ./TritonRoute -lef <LEF_FILE> -def <DEF_FILE> -guide <GUIDE_FILE> -output <OUTPUT_DEF>" <<endl;
-    return 2;
-  }
+  // if (argc == 1) {
+  //   cout <<"Error: usage ./TritonRoute -lef <LEF_FILE> -def <DEF_FILE> -guide <GUIDE_FILE> -output <OUTPUT_DEF>" <<endl;
+  //   return 2;
+  // }
 
-  if (argc == 2) {
-    int readSuccess = readParams(string(argv[1]));
+  if (argc == 1) {
+    int readSuccess = readParams(string("param"));
     if (readSuccess) {
       cout <<"Error reading param file!!!" <<endl;
       return 2;
