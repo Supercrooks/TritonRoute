@@ -621,9 +621,10 @@ void FlexTAWorker::initCosts() {
       totCost += drcCost;
 
 
-      totBC    += iroute->getbc();
-      totOC    += iroute->getoc();
-      totWL    += iroute->getwl();
+      // totBC    += iroute->getbc();
+      // totOC    += iroute->getoc();
+      // totWL    += iroute->getwl();
+      
       //iroute->setDrcCost(drcCost);
       //totDrcCost += drcCost;
       if (enableOutput && !isInitTA()) {

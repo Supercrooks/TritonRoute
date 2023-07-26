@@ -40,7 +40,7 @@ using namespace fr;
 using namespace boost::polygon::operators;
 using namespace std::chrono;
 
-int FlexTAWorker::main() {
+int FlexTAWorker::main(long &BC,long &OC,long &WL) {
   using namespace std::chrono;
   high_resolution_clock::time_point t0 = high_resolution_clock::now();
   if (VERBOSE > 1) {
@@ -60,14 +60,16 @@ int FlexTAWorker::main() {
     cout <<ss.str();
   }
 
-
+  long      totOC=0;
+  long      totBC=0;
+  long      totWL=0;
   //assignIroutes();
   //reassignIroutes();
   //saveToGuides();
   //reportCosts();
   init();
   high_resolution_clock::time_point t1 = high_resolution_clock::now();
-  assign();
+  assign(totOC,totBC,totWL);
   high_resolution_clock::time_point t2 = high_resolution_clock::now();
   end();
   high_resolution_clock::time_point t3 = high_resolution_clock::now();
@@ -84,6 +86,9 @@ int FlexTAWorker::main() {
                                       <<endl;
     cout <<ss.str() <<flush;
   }
+  BC=totBC;
+  OC=totOC;
+  WL=totWL;
   return 0;
 }
 
@@ -107,6 +112,9 @@ int FlexTAWorker::main_mt(long &BC,long &OC,long &WL) {
     cout <<ss.str();
   }
 
+  long      totOC=0;
+  long      totBC=0;
+  long      totWL=0;
 
   //assignIroutes();
   //reassignIroutes();
@@ -114,7 +122,7 @@ int FlexTAWorker::main_mt(long &BC,long &OC,long &WL) {
   //reportCosts();
   init();
   high_resolution_clock::time_point t1 = high_resolution_clock::now();
-  assign();
+  assign(totOC,totBC,totWL);
   high_resolution_clock::time_point t2 = high_resolution_clock::now();
   //end();
   high_resolution_clock::time_point t3 = high_resolution_clock::now();
@@ -131,9 +139,9 @@ int FlexTAWorker::main_mt(long &BC,long &OC,long &WL) {
                                       <<endl;
     cout <<ss.str() <<flush;
   }
-   BC=totBC;
-  OC=totOC;
-  WL=totWL;
+  BC= totBC;
+  OC= totOC;
+  WL= totWL;
   return 0;
  
 }
@@ -162,7 +170,13 @@ int FlexTA::initTA_helper(int iter, int size, int offset, bool isH, int &numPane
         worker.setExtBox(extBox);
         worker.setDir(frPrefRoutingDirEnum::frcHorzPrefRoutingDir);
         worker.setTAIter(iter);
-        worker.main();
+        long BC=0;
+        long OC=0;
+        long WL=0;
+        worker.main(BC,OC,WL);
+        TOTBC+=BC;
+        TOTOC+=OC;
+        TOTWL+=WL;
         //int numAssigned = worker.getNumAssigned();
         sol += worker.getNumAssigned();
         numPanels++;
@@ -184,7 +198,13 @@ int FlexTA::initTA_helper(int iter, int size, int offset, bool isH, int &numPane
         worker.setExtBox(extBox);
         worker.setDir(frPrefRoutingDirEnum::frcVertPrefRoutingDir);
         worker.setTAIter(iter);
-        worker.main();
+        long BC=0;
+        long OC=0;
+        long WL=0;
+        worker.main(BC,OC,WL);
+        TOTBC+=BC;
+        TOTOC+=OC;
+        TOTWL+=WL;
         //int numAssigned = worker.getNumAssigned();
         sol += worker.getNumAssigned();
         numPanels++;
@@ -254,14 +274,15 @@ int FlexTA::initTA_helper(int iter, int size, int offset, bool isH, int &numPane
         long OC=0;
         long WL=0;
         workerBatch[i]->main_mt(BC,OC,WL);
+        TOTBC+=BC;
+        TOTOC+=OC;
+        TOTWL+=WL;
         #pragma omp critical 
         {
           sol += workerBatch[i]->getNumAssigned();
           numPanels++;
         }
-        TOTBC+=BC;
-        TOTOC+=OC;
-        TOTWL+=WL;
+        
 
       }
       for (int i = 0; i < (int)workerBatch.size(); i++) {

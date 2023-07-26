@@ -257,7 +257,7 @@ namespace fr {
       return numAssigned;
     }
     // others
-    int main();
+    int main(long &OC, long &BC, long &WL);
     int main_mt(long &BC,long &OC,long &WL);
     
   protected:
@@ -321,11 +321,11 @@ namespace fr {
     void modCutSpacingCost(const frBox &box, frLayerNum lNum, taPinFig* fig, bool isAddCost, std::set<taPin*, frBlockObjectComp> *pinS = nullptr);
 
     // initTA
-    void assign();
-    void assignIroute(taPin* iroute);
-    void assignIroute_init(taPin* iroute, std::set<taPin*, frBlockObjectComp> *pinS);
+    void assign(long &OC, long &BC, long &WL);
+    void assignIroute(taPin* iroute,long &OC, long &BC, long &WL);
+    void assignIroute_init(taPin* iroute, std::set<taPin*, frBlockObjectComp> *pinS,long &OC, long &BC, long &WL);
     void assignIroute_availTracks(taPin* iroute, frLayerNum &lNum, int &idx1, int &idx2);
-    int  assignIroute_bestTrack(taPin* iroute, frLayerNum lNum, int idx1, int idx2);
+    int  assignIroute_bestTrack(taPin* iroute, frLayerNum lNum, int idx1, int idx2,long &OC, long &BC, long &WL);
     void assignIroute_bestTrack_helper(taPin* iroute, frLayerNum lNum, int trackIdx, frUInt4 &bestCost, 
                                        frCoord &bestTrackLoc, int &bestTrackIdx, frUInt4 &drcCost,long &OC, long &BC, long &WL);
     frUInt4 assignIroute_getCost(taPin *iroute, frCoord trackLoc, frUInt4 &drcCost,long &OC, long &BC, long &WL);
@@ -335,7 +335,7 @@ namespace fr {
     frUInt4 assignIroute_getDRCCost(taPin *iroute, frCoord trackLoc, long &OC, long &BC);
     frUInt4 assignIroute_getDRCCost_helper(taPin* iroute, const frBox &box, frLayerNum lNum,long &OC, long &BC);
     void assignIroute_updateIroute(taPin* iroute, frCoord bestTrackLoc, std::set<taPin*, frBlockObjectComp> *pinS);
-    void assignIroute_updateOthers(std::set<taPin*, frBlockObjectComp> &pinS);
+    void assignIroute_updateOthers(std::set<taPin*, frBlockObjectComp> &pinS,long &OC, long &BC, long &WL);
 
     // end
     void end();
