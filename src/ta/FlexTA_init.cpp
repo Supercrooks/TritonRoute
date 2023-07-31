@@ -426,7 +426,7 @@ void FlexTAWorker::initIroute(frGuide *guide) {
 
   frCoord trackLoc = 0;
   frPoint segBegin, segEnd;
-  bool    isH         = (getDir() == frPrefRoutingDirEnum::frcHorzPrefRoutingDir);
+  bool    isH  = (getDir() == frPrefRoutingDirEnum::frcHorzPrefRoutingDir);
   // set trackIdx
   if (!isInitTA()) {
     for (auto &connFig: guide->getRoutes()) {
@@ -705,7 +705,7 @@ void FlexTAWorker::sortIroutes() {
 }
 
 void FlexTAWorker::initFixedObjs_helper(const frBox &box, frCoord bloatDist, frLayerNum lNum, frNet* net) {
-  //bool enableOutput = true;
+  // bool enableOutput = true;
   bool enableOutput = false;
   double dbu = getTech()->getDBUPerUU();
   frBox bloatBox;
@@ -741,13 +741,21 @@ void FlexTAWorker::initFixedObjs_helper(const frBox &box, frCoord bloatDist, frL
       tmpBox.set(trackLoc, bloatBox.bottom(), trackLoc, bloatBox.top());
     }
     workerRegionQuery.addCost(tmpBox, lNum, net, con);
+
+    // for (auto &iroute: iroutes) {
+    //   for (auto &uPinFig: iroute->getFigs()) {
+    //     workerRegionQuery.add(uPinFig.get());
+    //     addCost(uPinFig.get());
+    //   }
+    // }
+
     if (enableOutput) {
       cout <<"  add fixed obj cost ("
            <<tmpBox.left()  / dbu <<", " <<tmpBox.bottom() / dbu <<") (" 
            <<tmpBox.right() / dbu <<", " <<tmpBox.top()    / dbu <<") " 
            <<getDesign()->getTech()->getLayer(lNum)->getName();
       if (net != nullptr) {
-        cout <<" " <<net->getName();
+        cout <<" " <<net->getName();//VSS、VDD
       }
       cout <<endl <<flush;
     }

@@ -343,7 +343,7 @@ void FlexPA::getViaRawPriority(frViaDef* viaDef, viaRawPriorityTuple &priority) 
 
 void FlexPA::initTrackCoords() {
   bool enableOutput = false;
-  //bool enableOutput = true;
+  // bool enableOutput = true;
 
   if (enableOutput) {
     cout <<endl <<endl;

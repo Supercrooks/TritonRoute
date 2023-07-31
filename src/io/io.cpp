@@ -5308,8 +5308,8 @@ void io::Parser::readLef() {
 }
 
 void io::Parser::readLefDef() {
-  bool enableOutput = false;
-  // bool enableOutput = true;
+  // bool enableOutput = false;
+  bool enableOutput = true;
 
   if (VERBOSE > 0) {
     cout <<endl <<"reading lef ..." <<endl;
@@ -5343,8 +5343,6 @@ void io::Parser::readLefDef() {
 
   readDef();
 
-
-
   if (VERBOSE > 0) {
     cout <<endl;
     frBox dieBox;
@@ -5362,14 +5360,18 @@ void io::Parser::readLefDef() {
   //cout <<flush;
 
   if (enableOutput) {
-    //tech->printAllVias();
-    //design->printAllComps();
-    //printCompMaps();
-    //design->printAllTerms();
-    //printTermMaps();
-    //printAllNets();
-    //printAllTrackGens();
-    //printAllTrackPatterns();
+    tech->printAllVias();
+    tech->printAllConstraints();
+    // tech->printDefaultVias();
+    design->printAllComps();
+    // printCompMaps();
+    design->printAllTerms();
+    design->printAllMacros();
+    design->printCMap();
+    // printTermMaps();
+    // printAllNets();
+    // printAllTrackGens();
+    // printAllTrackPatterns();
   }
   //exit(1);
 

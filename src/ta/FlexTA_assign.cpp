@@ -701,22 +701,21 @@ frUInt4 FlexTAWorker::assignIroute_getDRCCost_helper(taPin* iroute, const frBox 
     }
     // unknown obj, always add cost
     if (obj == nullptr) {
-      overlap += 1000000*tmpOvlp;
+      overlap += 100000*tmpOvlp;
       BC += OGTMPOVLP;
       // cout<<"BC__1:"<<BC<<endl;
-    // only add cost for diff-net
+    // only add cost for diff-net *localnet
     } else if (obj->typeId() == frcNet) {
       if (iroute->getGuide()->getNet() != obj) {
         overlap += tmpOvlp;
-        //*
+        
         if(isInitTA()){
             overlap += 0.1*tmpOvlp;
         }
         else{
-            overlap += (0.1*iroute->getNumAssigned()*tmpOvlp);
-            // cout<<iroute->getNumAssigned()<<endl;
+            overlap += (0.1*getTAIter()*tmpOvlp);
+            
         }
-        //*
         OC += OGTMPOVLP;
       }
     // two taObjs
@@ -730,25 +729,41 @@ frUInt4 FlexTAWorker::assignIroute_getDRCCost_helper(taPin* iroute, const frBox 
         //overlap += tmpOvlp;
         //*
         if(isInitTA()){
+          if(tmpOvlp==1){
+            overlap += tmpOvlp;
+          }else{
             overlap += 0.1*tmpOvlp;
+          } 
         }
         else{
-          
-            overlap += (0.1*(iroute->getNumAssigned()+1)*tmpOvlp);
+          if(tmpOvlp==1){
+            overlap += tmpOvlp;
+          }else{
+            overlap += (0.1*getTAIter()*tmpOvlp);
+          } 
             // cout<<"num: "<<iroute->getNumAssigned()<<endl;
         }
-        OC += OGTMPOVLP;
+          OC += OGTMPOVLP;
       }
-    }else if(obj->typeId() == tacBlockObject ) {
-      overlap += 1000000*tmpOvlp;
-      BC += OGTMPOVLP;
-      cout<<"BC__2:"<<BC<<endl;
-    }else if(obj->typeId() == tacPin) {
-      overlap += 1000000*tmpOvlp;
-      BC += OGTMPOVLP;
-      cout<<"BC__3:"<<BC<<endl;
+    //     else if(taObj->getPin()->getGuide()->getNet()->getName()=="VSS"||taObj->getPin()->getGuide()->getNet()->getName()=="VDD"){
+    //   overlap += 1000000*tmpOvlp;
+    //   BC += OGTMPOVLP;
+    //   // cout<<"BC__2:"<<BC<<endl;
+    // }
+    // }else if(obj->typeId() == tacBlockObject ) {
+    //   overlap += 1000000*tmpOvlp;
+    //   BC += OGTMPOVLP;
+    //   cout<<"BC__2:"<<BC<<endl;
+    // }else if(obj->typeId() == tacPin) {
+    //   overlap += 1000000*tmpOvlp;
+    //   BC += OGTMPOVLP;
+    //   cout<<"BC__3:"<<BC<<endl;
+    // }
     }
     else {
+      // overlap += 1000000*tmpOvlp;
+      //   BC += OGTMPOVLP;
+      //   cout<<"BC__2:"<<BC<<endl;
       cout <<"Warning: assignIroute_getDRCCost_helper unsupported type" <<endl;
     }
   }
@@ -1276,7 +1291,7 @@ void FlexTAWorker::assign(long &totOC,long &totBC,long &totWL) {
   if (getTAIter() == -1) {
     return;
   }
-  maxRetry = 3;
+  // maxRetry = 3;
   //if (isInitTA()) {
     int maxBufferSize = 20;
     vector<taPin*> buffers(maxBufferSize, nullptr);
@@ -1300,7 +1315,7 @@ void FlexTAWorker::assign(long &totOC,long &totBC,long &totWL) {
         //    addToReassignIroutes(buffers[currBufferIdx]);
         //  }
         //}
-        buffers[currBufferIdx] = iroute;
+         buffers[currBufferIdx] = iroute;
         currBufferIdx = (currBufferIdx + 1) % maxBufferSize;
         if (enableOutput && !isInitTA()) {
           //cout <<"totCost@" <<totCost <<"/" <<totDrcCost <<endl;

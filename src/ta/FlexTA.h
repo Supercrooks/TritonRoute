@@ -106,7 +106,7 @@ namespace fr {
     // others
     void main_helper(frLayerNum lNum, int maxOffsetIter, int panelWidth);
     void initTA(int size);
-    void searchRepair(int iter, int size, int offset);
+    void searchRepair(int iter, int size, int offset,long &TOTOC);
     int  initTA_helper(int iter, int size, int offset, bool isH, int &numPanels,long &TOTBC,long &TOTOC,long &TOTWL);
   };
 

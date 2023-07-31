@@ -33,7 +33,7 @@ using namespace fr;
 
 void io::Parser::instAnalysis() {
   bool enableOutput = false;
-  //bool enableOutput = true;
+  // bool enableOutput = true;
   if (VERBOSE > 0) {
     cout <<endl <<"libcell analysis ..." <<endl;
   }
@@ -76,9 +76,9 @@ void io::Parser::instAnalysis() {
     maxLayerNum = min(maxLayerNum + 2, numLayers);
     refBlockPinLayerRange[refBlock] = make_tuple(minLayerNum, maxLayerNum);
     if (enableOutput) {
-      cout <<"  " <<refBlock->getName() <<" PIN layer ("
-           <<design->getTech()->getLayer(minLayerNum)->getName() <<", "
-           <<design->getTech()->getLayer(maxLayerNum)->getName() <<")" <<endl;
+      // cout <<"  " <<refBlock->getName() <<" PIN layer ("
+      //      <<design->getTech()->getLayer(minLayerNum)->getName() <<", "
+      //      <<design->getTech()->getLayer(maxLayerNum)->getName() <<")" <<endl;
     }
   }
   //cout <<"  refBlock pin layer range done" <<endl;
@@ -100,8 +100,8 @@ void io::Parser::instAnalysis() {
         // vertical track
         if (tp->isHorizontal()) {
           offset.push_back(origin.x() % tp->getTrackSpacing());
-          //cout <<"inst/offset/layer " <<inst->getName() <<" " <<origin.y() % tp->getTrackSpacing() 
-          //     <<" " <<design->getTech()->getLayer(tp->getLayerNum())->getName() <<endl;
+          // cout <<"inst/offset/layer " <<inst->getName() <<" " <<origin.y() % tp->getTrackSpacing() 
+              // <<" " <<design->getTech()->getLayer(tp->getLayerNum())->getName() <<endl;
         } else {
           offset.push_back(origin.y() % tp->getTrackSpacing());
           //cout <<"inst/offset/layer " <<inst->getName() <<" " <<origin.x() % tp->getTrackSpacing()

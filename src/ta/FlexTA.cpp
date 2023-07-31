@@ -155,6 +155,8 @@ int FlexTA::initTA_helper(int iter, int size, int offset, bool isH, int &numPane
   auto &ygp = gCellPatterns.at(1);
   int sol = 0;
   numPanels = 0;
+  //
+  // MAX_THREADS = 1;
   if (MAX_THREADS == 1) {
     if (isH) {
       for (int i = offset; i < (int)ygp.getCount(); i += size) {
@@ -188,7 +190,7 @@ int FlexTA::initTA_helper(int iter, int size, int offset, bool isH, int &numPane
       for (int i = offset; i < (int)xgp.getCount(); i += size) {
         FlexTAWorker worker(getDesign());
         frBox beginBox, endBox;
-        getDesign()->getTopBlock()->getGCellBox(frPoint(i, 0),                       beginBox);
+        getDesign()->getTopBlock()->getGCellBox(frPoint(i, 0),beginBox);
         getDesign()->getTopBlock()->getGCellBox(frPoint(min(i + size - 1, (int)xgp.getCount() - 1),
                                                         (int)ygp.getCount() - 1), endBox);
         frBox routeBox(beginBox.left(), beginBox.bottom(), endBox.right(), endBox.top());
@@ -243,7 +245,7 @@ int FlexTA::initTA_helper(int iter, int size, int offset, bool isH, int &numPane
         auto uworker = make_unique<FlexTAWorker>(getDesign());
         auto &worker = *(uworker.get());
         frBox beginBox, endBox;
-        getDesign()->getTopBlock()->getGCellBox(frPoint(i, 0),                       beginBox);
+        getDesign()->getTopBlock()->getGCellBox(frPoint(i, 0),beginBox);
         getDesign()->getTopBlock()->getGCellBox(frPoint(min(i + size - 1, (int)xgp.getCount() - 1),
                                                         (int)ygp.getCount() - 1), endBox);
         frBox routeBox(beginBox.left(), beginBox.bottom(), endBox.right(), endBox.top());
@@ -365,12 +367,12 @@ void FlexTA::initTA(int size) {
   }
 }
 
-void FlexTA::searchRepair(int iter, int size, int offset) {
+void FlexTA::searchRepair(int iter, int size, int offset,long &TOTOC) {
   frTime t;
 
 
   long TOTBC=0;
-  long TOTOC=0;
+  TOTOC=0;
   long TOTWL=0;
   long TOTBC_1=0;
   long TOTOC_1=0;
@@ -454,6 +456,11 @@ void FlexTA::searchRepair(int iter, int size, int offset) {
 
 int FlexTA::main() {
   frTime t;
+  long TOTOC=0;
+  long OC1=0;
+  long OC2=0;
+  int i=0;
+
   if (VERBOSE > 0) {
     cout <<endl <<endl <<"start track assignment" <<endl;
   }
@@ -461,24 +468,62 @@ int FlexTA::main() {
 
   initTA(1);
 
-  high_resolution_clock::time_point t1 = high_resolution_clock::now();
+  high_resolution_clock::time_point t0_1 = high_resolution_clock::now();
 
-  searchRepair(1, 1, 0);
+  // searchRepair(1, 1, 0,TOTOC);
 
-  high_resolution_clock::time_point t2 = high_resolution_clock::now();
+  // high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
-  //searchRepair(2, 50, 0);
-  //searchRepair(2, 50, 0);
-  //searchRepair(-1, 50, 0);
+  // searchRepair(2, 1, 0,TOTOC);
+  // high_resolution_clock::time_point t3 = high_resolution_clock::now();
+  // searchRepair(3, 1, 0,TOTOC);
+  // high_resolution_clock::time_point t4 = high_resolution_clock::now();
+  // searchRepair(4, 1, 0,TOTOC);
+  // high_resolution_clock::time_point t5 = high_resolution_clock::now();
+  //  searchRepair(5, 1, 0,TOTOC);
+  // high_resolution_clock::time_point t6 = high_resolution_clock::now();
+  //  searchRepair(6, 1, 0,TOTOC);
+  // high_resolution_clock::time_point t7 = high_resolution_clock::now();
 
-  duration<double> time_span0 = duration_cast<duration<double>>(t1 - t0);
-  duration<double> time_span1 = duration_cast<duration<double>>(t2 - t1);
+  duration<double> time_span0 = duration_cast<duration<double>>(t0_1 - t0);
+  // duration<double> time_span1 = duration_cast<duration<double>>(t2 - t1);
+  // duration<double> time_span2 = duration_cast<duration<double>>(t3 - t2);
+  // duration<double> time_span3 = duration_cast<duration<double>>(t4 - t3);
+  // duration<double> time_span4 = duration_cast<duration<double>>(t5 - t4);
+  // duration<double> time_span5 = duration_cast<duration<double>>(t6 - t5);
+  // duration<double> time_span6 = duration_cast<duration<double>>(t7 - t6);
+  while(1){
+    i++;
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+    searchRepair(i, 1, 0,TOTOC);
+    OC1= TOTOC;
+    i++;
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+    searchRepair(i, 1, 0,TOTOC);
+    OC2=TOTOC;
+    high_resolution_clock::time_point t3 = high_resolution_clock::now();
+
+    duration<double> time_span1 = duration_cast<duration<double>>(t2 - t1);
+    duration<double> time_span2 = duration_cast<duration<double>>(t3 - t2);
+    cout<<"searchRepair"<<i-1<<": "<<time_span1.count() <<endl;
+    cout<<"searchRepair"<<i<<": "<<time_span2.count() <<endl;
+    if(abs(OC1-OC2)/OC2<0.025){
+      cout<<"__________"<<endl;
+      break;
+    }
+  }
+  
   
   if (VERBOSE > 0) {
     stringstream ss;
     ss   <<"time initTA " <<time_span0.count()<<endl;
     cout <<ss.str() <<flush;
-    cout <<"searchRepair1 "<<time_span1.count() <<endl;
+    // cout <<"searchRepair1 "<<time_span1.count() <<endl;
+    // cout <<"searchRepair2 "<<time_span2.count() <<endl;
+    // cout <<"searchRepair3 "<<time_span3.count() <<endl;
+    // cout <<"searchRepair4 "<<time_span4.count() <<endl;
+    // cout <<"searchRepair5 "<<time_span5.count() <<endl;
+    // cout <<"searchRepair6 "<<time_span6.count() <<endl;
   }
 
   if (VERBOSE > 0) {
